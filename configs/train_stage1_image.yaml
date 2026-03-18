@@ -1,0 +1,68 @@
+seed: 10
+model:
+  backbone_type: transformer
+  pretrained_backbone: false
+  use_temporal_branch: false
+  fusion_variant: dual
+  transformer_img_size: 512
+  transformer_embed_dim: 60
+  transformer_ir_depths: [2, 1, 1]
+  transformer_ir_num_heads: [6, 6, 6]
+  transformer_hdr_depths: [6, 6, 6]
+  transformer_hdr_num_heads: [6, 6, 6]
+  transformer_window_size: 8
+  transformer_mlp_ratio: 4.0
+  transformer_drop_rate: 0.0
+  transformer_attn_drop_rate: 0.0
+  transformer_drop_path_rate: 0.0
+  transformer_ir_checkpoint:
+  transformer_freeze_ir_branch: false
+datasets:
+  image:
+    hdr_dir: data/RGBTHDRdataset/hdr_reduced_size
+    rgb_dir: data/RGBTHDRdataset/registered_RGB_reduced_size
+    ir_dir: data/RGBTHDRdataset/infrared
+    train_index: data/RGBTHDRdataset/trainingset.txt
+    val_index: data/RGBTHDRdataset/testset.txt
+    train_crop_size: 512
+    train_augment_pipeline: reference
+    val_image_size:
+    val_augment_pipeline: basic
+train:
+  stage: image
+  epochs: 10
+  steps_per_epoch: 400
+  init_checkpoint:
+  batch_size: 1
+  num_workers: 4
+  persistent_workers: true
+  prefetch_factor: 2
+  lr: 1.2e-6
+  warmup_steps: 0
+  weight_decay: 1.0e-8
+  lr_milestones: [99999]
+  lr_gamma: 0.5
+  best_metric: pu_psnr
+  best_mode: max
+  validate_every: 1
+  save_every: 2
+  log_every: 10
+losses:
+  reconstruction: lab_l1
+  reconstruction_weight: 1.0
+  perceptual_weight: 1.0
+  fusion_mode: kl
+  fusion_weight: 0.75
+performance:
+  mixed_precision: bf16
+  allow_tf32: true
+  cudnn_benchmark: true
+  float32_matmul_precision: high
+  suppress_opencv_warnings: true
+output:
+  checkpoint_dir: outputs/stage1/checkpoints
+  overwrite_best: true
+  overwrite_regular: true
+  save_optimizer_state: false
+  save_scheduler_state: false
+  checkpoint_dtype: float16

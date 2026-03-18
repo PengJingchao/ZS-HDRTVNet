@@ -1,0 +1,32 @@
+checkpoint: outputs/stage2/checkpoints/video_best.pth
+model:
+  pretrained_backbone: false
+  use_temporal_branch: true
+  fusion_variant: dual
+  backbone_type: transformer
+  transformer_img_size: 512
+  transformer_embed_dim: 60
+  transformer_ir_depths: [2, 1, 1]
+  transformer_ir_num_heads: [6, 6, 6]
+  transformer_hdr_depths: [6, 6, 6]
+  transformer_hdr_num_heads: [6, 6, 6]
+  transformer_window_size: 8
+  transformer_mlp_ratio: 4.0
+  transformer_drop_rate: 0.0
+  transformer_attn_drop_rate: 0.0
+  transformer_drop_path_rate: 0.0
+  transformer_ir_checkpoint:
+  transformer_freeze_ir_branch: false
+  temporal_scale_init: 0.001
+video:
+  rgb_dir: data/RGBTHDRdataset/Video/day_RGB
+  ir_dir: data/RGBTHDRdataset/Video/day_infrared
+  pad_to_multiple: 32
+output:
+  result_dir: outputs/infer_video
+performance:
+  mixed_precision: bf16
+  allow_tf32: true
+  cudnn_benchmark: true
+  float32_matmul_precision: high
+  suppress_opencv_warnings: true

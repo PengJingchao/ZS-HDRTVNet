@@ -1,0 +1,71 @@
+seed: 10
+model:
+  backbone_type: transformer
+  pretrained_backbone: false
+  use_temporal_branch: true
+  fusion_variant: dual
+  transformer_img_size: 512
+  transformer_embed_dim: 60
+  transformer_ir_depths: [2, 1, 1]
+  transformer_ir_num_heads: [6, 6, 6]
+  transformer_hdr_depths: [6, 6, 6]
+  transformer_hdr_num_heads: [6, 6, 6]
+  transformer_window_size: 8
+  transformer_mlp_ratio: 4.0
+  transformer_drop_rate: 0.0
+  transformer_attn_drop_rate: 0.0
+  transformer_drop_path_rate: 0.0
+  transformer_ir_checkpoint:
+  transformer_freeze_ir_branch: false
+  temporal_scale_init: 0.001
+datasets:
+  video:
+    video_root: data/HdM-HDR-2014_Original-HDR-Camera-Footage
+    train_list: data/video_train_scenes.txt
+    val_list: data/video_val_scenes.txt
+    sequence_length: 15
+    val_sequence_length: 15
+    image_size: 512
+    val_image_size: 512
+    pseudo_ir_mode: clahe
+train:
+  stage: video
+  epochs: 16
+  init_checkpoint: outputs/stage1/checkpoints/image_best.pth
+  video_batch_size: 3
+  num_workers: 8
+  persistent_workers: true
+  prefetch_factor: 4
+  lr: 2.0e-7
+  temporal_lr_scale: 6.0
+  warmup_steps: 4
+  weight_decay: 1.0e-8
+  lr_milestones: [2400, 4800]
+  lr_gamma: 0.5
+  best_metric: video_pu_psnr
+  best_mode: max
+  validate_every: 2
+  save_every: 4
+  log_every: 2
+losses:
+  reconstruction: lab_l1
+  reconstruction_weight: 1.0
+  perceptual_weight: 1.0
+  fusion_mode: kl
+  fusion_weight: 0.75
+  short_temporal_weight: 5.0
+  long_temporal_weight: 1.5
+  occlusion_alpha: 20.0
+performance:
+  mixed_precision: bf16
+  allow_tf32: true
+  cudnn_benchmark: true
+  float32_matmul_precision: high
+  suppress_opencv_warnings: true
+output:
+  checkpoint_dir: outputs/stage2/checkpoints
+  overwrite_best: true
+  overwrite_regular: true
+  save_optimizer_state: false
+  save_scheduler_state: false
+  checkpoint_dtype: float16
